@@ -31,7 +31,8 @@ def update_contest(contest_name):
         else:
             a["FullName"] = "Not Registered"
         a["Total Problem Solved"] = 0
-        a["Rating"] = 500
+        a["Secret_Rating"] = 500
+        a["Rating"] = 0
         a["Rating History"] = {}
         a["Medals"] = {"Platinum" : 0,"Gold" : 0,"Silver" : 0,"Bronze" : 0}
         data[nick]=a
@@ -54,8 +55,7 @@ def update_contest(contest_name):
         val=1
         for j in l:
             if i is not j:
-#                print(a,data[j]["Rating"])
-                val+=1/(1+10**( (a-data[j]["Rating"])/200))
+                val+=1/(1+10**( (a-data[j]["Secret_Rating"])/200))
         return val
 
     def give_medals(l):
@@ -81,7 +81,7 @@ def update_contest(contest_name):
 
     sums = 0 # Total change
     for i in l:
-        seed = test_value(data[i]["Rating"],i) ## calculate what is ur expected seed 
+        seed = test_value(data[i]["Secret_Rating"],i) ## calculate what is ur expected seed 
         geo = (contest_rank[i]*seed)**0.5 ## it is geometric so it is close the higher one , increasing is easier than decreasing
         x=0   # Min Rating Value
         y=10000 # Max Rating Value 
@@ -90,21 +90,29 @@ def update_contest(contest_name):
                 y=(x+y)//2
             else:
                 x=(x+y)//2+1
-        new_ratings[i] = (x-data[i]["Rating"])//2 # Again increase as halfway
+        new_ratings[i] = (x-data[i]["Secret_Rating"])//2 # Again increase as halfway
         sums += new_ratings[i]
 
     sums//=len(l) ## get avarage total change
 
     for i in new_ratings:
-        new_ratings[i] = data[i]["Rating"] + new_ratings[i] - sums
+        new_ratings[i] = data[i]["Secret_Rating"] + new_ratings[i] - sums
 
 
 
     for i in l:
-        data[i]['Rating'] = new_ratings[i]
+        data[i]["Rating"] = (data[i]["Rating"] + new_ratings[i])//2
+        data[i]["Secret_Rating"] = new_ratings[i]
         data[i]["Rating History"][start_time_epoch]=data[i]["Rating"]
+    
     with open("data.json", "w") as write_file:
         json.dump(data, write_file)
 
 update_contest("inzva-algorithm-competition-league-contest-1")
 update_contest("inzva-algorithm-competition-league-contest-2")
+update_contest("inzva-algorithm-competition-league-contest-3")
+update_contest("inzva-algorithm-competition-league-contest-4")
+update_contest("inzva-algorithm-competition-league-contest-5")
+update_contest("inzva-algorithm-competition-league-contest-6")
+update_contest("inzva-algorithm-competition-league-contest-7")
+
